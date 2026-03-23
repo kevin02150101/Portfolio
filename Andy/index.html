@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Andy Kuo — Personal Website</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050508;
+      --surface: #0c0c12;
+      --surface2: #12121c;
+      --border: rgba(255,255,255,.05);
+      --text: #c8c8d4;
+      --text-dim: #6b6b80;
+      --heading: #ededf2;
+      --accent: #f97316;
+      --accent2: #fb923c;
+      --accent-glow: rgba(249,115,22,.15);
+      --teal: #2dd4bf;
+      --teal-glow: rgba(45,212,191,.12);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+
+    /* ── Canvas Noise Texture ── */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      opacity: .03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* ── Ambient Orbs ── */
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; z-index: -1;
+    }
+    .orb-1 { width: 500px; height: 500px; top: -10%; left: -5%; background: rgba(249,115,22,.07); }
+    .orb-2 { width: 400px; height: 400px; bottom: 10%; right: -8%; background: rgba(45,212,191,.06); }
+    .orb-3 { width: 300px; height: 300px; top: 40%; left: 50%; background: rgba(249,115,22,.04); }
+
+    /* ── Sidebar Nav ── */
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0; width: 72px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 1.5rem; z-index: 100;
+      border-right: 1px solid var(--border);
+      background: rgba(5,5,8,.8);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    }
+    .sidebar a {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; text-decoration: none;
+      color: var(--text-dim); transition: all .25s;
+      position: relative;
+    }
+    .sidebar a::after {
+      content: attr(data-tip); position: absolute; left: 56px;
+      background: var(--surface2); color: var(--heading);
+      padding: .3rem .7rem; border-radius: 8px; font-size: .75rem;
+      white-space: nowrap; opacity: 0; pointer-events: none;
+      transform: translateX(-6px); transition: all .2s;
+      border: 1px solid var(--border);
+    }
+    .sidebar a:hover::after { opacity: 1; transform: translateX(0); }
+    .sidebar a:hover { color: var(--accent); background: var(--accent-glow); }
+    .sidebar-logo {
+      position: absolute; top: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700; font-size: .85rem; color: var(--accent);
+      writing-mode: vertical-lr; text-orientation: mixed;
+      letter-spacing: .05em;
+    }
+
+    /* ── Main Layout ── */
+    main { margin-left: 72px; }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 4rem 4rem 4rem 5rem;
+      position: relative;
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center; width: 100%;
+      max-width: 1200px; margin: auto;
+    }
+    .hero-left {}
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .75rem; color: var(--teal);
+      border: 1px solid rgba(45,212,191,.2);
+      background: var(--teal-glow);
+      padding: .35rem 1rem; border-radius: 999px;
+      margin-bottom: 1.5rem;
+    }
+    .hero-tag .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal);
+      animation: pulse-dot 2s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; } 50% { opacity: .3; }
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+      font-weight: 900; line-height: 1.05;
+      color: var(--heading); margin-bottom: 1.25rem;
+    }
+    .hero h1 .accent { color: var(--accent); }
+    .hero-desc {
+      font-size: 1.1rem; color: var(--text-dim);
+      max-width: 440px; margin-bottom: 2rem;
+    }
+    .hero-cta {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .8rem 1.75rem; border-radius: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: .9rem; font-weight: 600;
+      text-decoration: none; transition: all .3s; border: none; cursor: pointer;
+    }
+    .btn-accent {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 6px 30px rgba(249,115,22,.3);
+    }
+    .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(249,115,22,.4); }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.03); }
+
+    /* Hero Right — Bento Preview */
+    .hero-bento {
+      display: grid; grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr; gap: 1rem;
+    }
+    .bento-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 1.75rem;
+      transition: border-color .3s, transform .3s;
+      position: relative; overflow: hidden;
+    }
+    .bento-cell:hover { border-color: rgba(249,115,22,.2); transform: translateY(-3px); }
+    .bento-cell.wide { grid-column: span 2; }
+    .bento-emoji { font-size: 2rem; margin-bottom: .5rem; display: block; }
+    .bento-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .65rem; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--text-dim); margin-bottom: .25rem;
+    }
+    .bento-value { font-weight: 700; font-size: 1.25rem; color: var(--heading); }
+    .bento-cell .glow-corner {
+      position: absolute; width: 120px; height: 120px;
+      border-radius: 50%; filter: blur(60px); opacity: .12;
+      top: -40px; right: -40px;
+    }
+
+    /* ── Section Container ── */
+    .section {
+      padding: 6rem 4rem 6rem 5rem;
+      max-width: calc(1200px + 5rem);
+      margin: auto;
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem; font-weight: 500; color: var(--accent);
+      background: var(--accent-glow); padding: .4rem .85rem;
+      border-radius: 10px; border: 1px solid rgba(249,115,22,.15);
+    }
+    .section-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+    .section h2 {
+      font-size: 2.25rem; font-weight: 800; color: var(--heading);
+    }
+
+    /* ── About — Horizontal Timeline Style ── */
+    .about-row {
+      display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;
+      margin-top: 1rem;
+    }
+    .about-body { font-size: 1.05rem; color: var(--text); }
+    .about-body p + p { margin-top: 1rem; }
+    .about-body .highlight {
+      color: var(--accent); font-weight: 600;
+    }
+    .about-aside {
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .info-chip {
+      display: flex; align-items: center; gap: .75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 1rem 1.25rem;
+      transition: border-color .3s;
+    }
+    .info-chip:hover { border-color: rgba(249,115,22,.2); }
+    .info-chip .ic-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .ic-orange { background: var(--accent-glow); }
+    .ic-teal { background: var(--teal-glow); }
+    .info-chip .ic-text { font-size: .85rem; color: var(--text-dim); }
+    .info-chip .ic-val { font-weight: 700; color: var(--heading); font-size: 1rem; }
+
+    /* ── Goals — Horizontal Scroll Cards ── */
+    .goals-track {
+      display: flex; gap: 1.5rem; margin-top: 1rem;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      padding-bottom: 1rem;
+      -ms-overflow-style: none; scrollbar-width: none;
+    }
+    .goals-track::-webkit-scrollbar { display: none; }
+    .g-card {
+      min-width: 300px; flex-shrink: 0;
+      scroll-snap-align: start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem;
+      position: relative; overflow: hidden;
+      transition: border-color .3s, transform .3s;
+    }
+    .g-card:hover { border-color: rgba(249,115,22,.2); transform: translateY(-4px); }
+    .g-card .g-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3.5rem; font-weight: 800;
+      color: rgba(255,255,255,.03); position: absolute;
+      top: .5rem; right: 1rem; line-height: 1;
+    }
+    .g-card .g-icon { font-size: 1.6rem; margin-bottom: .75rem; display: block; }
+    .g-card h3 { font-weight: 700; font-size: 1.15rem; color: var(--heading); margin-bottom: .4rem; }
+    .g-card p { font-size: .9rem; color: var(--text-dim); }
+    .g-card .g-tag {
+      display: inline-block; margin-top: .75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .65rem; text-transform: uppercase; letter-spacing: .1em;
+      padding: .25rem .7rem; border-radius: 8px;
+    }
+    .g-tag.academic { background: var(--accent-glow); color: var(--accent); }
+    .g-tag.personal { background: var(--teal-glow); color: var(--teal); }
+
+    /* ── Passions — Stacked Bento ── */
+    .passion-bento {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 1.5rem; margin-top: 1rem;
+    }
+    .p-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px; padding: 2.25rem 2rem;
+      transition: border-color .3s, transform .3s;
+      position: relative; overflow: hidden;
+    }
+    .p-card:hover { border-color: rgba(249,115,22,.2); transform: translateY(-4px); }
+    .p-card.featured {
+      grid-row: span 2;
+      background: linear-gradient(160deg, var(--surface) 60%, rgba(249,115,22,.04));
+      border-color: rgba(249,115,22,.1);
+    }
+    .p-card .p-emoji { font-size: 2.5rem; margin-bottom: .75rem; display: block; }
+    .p-card h3 { font-weight: 700; font-size: 1.2rem; color: var(--heading); margin-bottom: .4rem; }
+    .p-card p { font-size: .9rem; color: var(--text-dim); line-height: 1.6; }
+    .p-card .p-bar {
+      margin-top: 1rem; height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,.04); overflow: hidden;
+    }
+    .p-card .p-bar span {
+      display: block; height: 100%; border-radius: 2px;
+      transition: width 1s ease;
+    }
+    .bar-orange { background: var(--accent); }
+    .bar-teal { background: var(--teal); }
+
+    /* ── Favorite Subject — Large Feature Card ── */
+    .subject-feature {
+      margin-top: 1rem;
+      display: grid; grid-template-columns: auto 1fr;
+      gap: 3rem; align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 3.5rem;
+      position: relative; overflow: hidden;
+    }
+    .subject-feature:hover { border-color: rgba(249,115,22,.15); }
+    .subject-feature .sf-flag {
+      font-size: 5rem; line-height: 1;
+    }
+    .subject-feature h3 {
+      font-size: 1.75rem; font-weight: 800; color: var(--heading);
+      margin-bottom: .5rem;
+    }
+    .subject-feature p { font-size: 1.05rem; color: var(--text); max-width: 540px; }
+    .subject-feature .sf-pills {
+      display: flex; gap: .5rem; margin-top: 1rem; flex-wrap: wrap;
+    }
+    .sf-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+      padding: .3rem .8rem; border-radius: 8px;
+    }
+    .sf-pill.orange { background: var(--accent-glow); color: var(--accent); }
+    .sf-pill.teal { background: var(--teal-glow); color: var(--teal); }
+    .subject-feature .sf-glow {
+      position: absolute; width: 300px; height: 300px;
+      border-radius: 50%; filter: blur(120px);
+      background: rgba(249,115,22,.06);
+      top: -80px; right: -60px; pointer-events: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-left: 72px;
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 4rem; text-align: center;
+      color: var(--text-dim); font-size: .85rem;
+    }
+    footer .fname { color: var(--accent); font-weight: 600; }
+    footer .fmono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem; color: rgba(255,255,255,.15);
+      margin-top: .4rem;
+    }
+
+    /* ── Scroll Reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      main { margin-left: 0; }
+      footer { margin-left: 0; }
+      .hero { padding: 6rem 1.5rem 4rem; }
+      .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .section { padding: 4rem 1.5rem; }
+      .about-row { grid-template-columns: 1fr; }
+      .passion-bento { grid-template-columns: 1fr 1fr; }
+      .p-card.featured { grid-row: auto; }
+      .subject-feature { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+    }
+    @media (max-width: 560px) {
+      .passion-bento { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.2rem; }
+      .hero-bento { grid-template-columns: 1fr; }
+      .bento-cell.wide { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ── Sidebar Navigation ── -->
+  <aside class="sidebar">
+    <span class="sidebar-logo">AK</span>
+    <a href="#home" data-tip="Home">🏠</a>
+    <a href="#about" data-tip="About">👤</a>
+    <a href="#goals" data-tip="Goals">🎯</a>
+    <a href="#passions" data-tip="Passions">🔥</a>
+    <a href="#subject" data-tip="Subject">📚</a>
+  </aside>
+
+  <main>
+
+    <!-- ── Hero ── -->
+    <section class="hero" id="home">
+      <div class="hero-grid">
+        <div class="hero-left">
+          <div class="hero-tag"><span class="dot"></span> Grade 9 — High School</div>
+          <h1>Andy<br/><span class="accent">Kuo.</span></h1>
+          <p class="hero-desc">Student. Basketball player. Language learner. Building a future one goal at a time.</p>
+          <div class="hero-cta">
+            <a href="#about" class="btn btn-accent">About Me ↓</a>
+            <a href="#goals" class="btn btn-ghost">View Goals</a>
+          </div>
+        </div>
+        <div class="hero-bento">
+          <div class="bento-cell">
+            <div class="glow-corner" style="background:var(--accent);"></div>
+            <span class="bento-emoji">🎓</span>
+            <div class="bento-label">Current</div>
+            <div class="bento-value">Grade 9</div>
+          </div>
+          <div class="bento-cell">
+            <div class="glow-corner" style="background:var(--teal);"></div>
+            <span class="bento-emoji">📈</span>
+            <div class="bento-label">Target GPA</div>
+            <div class="bento-value">3.9+</div>
+          </div>
+          <div class="bento-cell wide">
+            <div class="glow-corner" style="background:var(--accent);"></div>
+            <span class="bento-emoji">🏀</span>
+            <div class="bento-label">Biggest Passion</div>
+            <div class="bento-value">Basketball</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── About ── -->
+    <div class="section" id="about">
+      <div class="reveal">
+        <div class="section-header">
+          <span class="section-num">01</span>
+          <h2>About Me</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="about-row">
+          <div class="about-body">
+            <p>Hi, my name is <span class="highlight">Andy Kuo</span>. I'm a Grade 9 student currently studying in high school.</p>
+            <p>I'm working hard to improve myself both academically and personally. I believe in continuous growth, setting ambitious goals, and making the most of every opportunity that comes my way.</p>
+            <p>Outside of school, I invest my time in things I love — from <span class="highlight">basketball</span> to exploring different cultures through <span class="highlight">language learning</span>.</p>
+          </div>
+          <div class="about-aside">
+            <div class="info-chip">
+              <div class="ic-icon ic-orange">📍</div>
+              <div><div class="ic-text">Status</div><div class="ic-val">High School Student</div></div>
+            </div>
+            <div class="info-chip">
+              <div class="ic-icon ic-teal">🎯</div>
+              <div><div class="ic-text">GPA Goal</div><div class="ic-val">3.9 or Higher</div></div>
+            </div>
+            <div class="info-chip">
+              <div class="ic-icon ic-orange">🇫🇷</div>
+              <div><div class="ic-text">Favorite Subject</div><div class="ic-val">French</div></div>
+            </div>
+            <div class="info-chip">
+              <div class="ic-icon ic-teal">🏀</div>
+              <div><div class="ic-text">Sport</div><div class="ic-val">Basketball</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Goals ── -->
+    <div class="section" id="goals">
+      <div class="reveal">
+        <div class="section-header">
+          <span class="section-num">02</span>
+          <h2>High School Goals</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="goals-track">
+          <div class="g-card">
+            <span class="g-num">01</span>
+            <span class="g-icon">📈</span>
+            <h3>GPA of 3.9+</h3>
+            <p>Maintain strong academic performance throughout high school and graduate with honors.</p>
+            <span class="g-tag academic">Academic</span>
+          </div>
+          <div class="g-card">
+            <span class="g-num">02</span>
+            <span class="g-icon">🎓</span>
+            <h3>Top University</h3>
+            <p>Get accepted into a great university that will shape my future and open new doors.</p>
+            <span class="g-tag academic">Academic</span>
+          </div>
+          <div class="g-card">
+            <span class="g-num">03</span>
+            <span class="g-icon">💪</span>
+            <h3>Personal Growth</h3>
+            <p>Build better habits, develop new skills, and strengthen my mindset every day.</p>
+            <span class="g-tag personal">Personal</span>
+          </div>
+          <div class="g-card">
+            <span class="g-num">04</span>
+            <span class="g-icon">🌍</span>
+            <h3>Explore the World</h3>
+            <p>Learn about different cultures and languages, broadening my perspective on life.</p>
+            <span class="g-tag personal">Personal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Passions ── -->
+    <div class="section" id="passions">
+      <div class="reveal">
+        <div class="section-header">
+          <span class="section-num">03</span>
+          <h2>What I Love</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="passion-bento">
+          <div class="p-card featured">
+            <span class="p-emoji">🏀</span>
+            <h3>Basketball</h3>
+            <p>My biggest passion. I love playing basketball, improving my skills on the court, and competing with friends. It keeps me active, focused, and constantly pushing my limits.</p>
+            <div class="p-bar"><span class="bar-orange" style="width:95%"></span></div>
+          </div>
+          <div class="p-card">
+            <span class="p-emoji">🎮</span>
+            <h3>Gaming</h3>
+            <p>A great way to relax, have fun, and connect with friends online after a long day.</p>
+            <div class="p-bar"><span class="bar-teal" style="width:80%"></span></div>
+          </div>
+          <div class="p-card">
+            <span class="p-emoji">📖</span>
+            <h3>Language Learning</h3>
+            <p>Fascinated by French language and culture. New languages open doors to new worlds.</p>
+            <div class="p-bar"><span class="bar-orange" style="width:70%"></span></div>
+          </div>
+          <div class="p-card">
+            <span class="p-emoji">🚀</span>
+            <h3>Self-Improvement</h3>
+            <p>Always looking for ways to grow — studying harder, picking up hobbies, pushing limits.</p>
+            <div class="p-bar"><span class="bar-teal" style="width:85%"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Favorite Subject ── -->
+    <div class="section" id="subject">
+      <div class="reveal">
+        <div class="section-header">
+          <span class="section-num">04</span>
+          <h2>Favorite Subject</h2>
+          <div class="section-line"></div>
+        </div>
+        <div class="subject-feature">
+          <div class="sf-glow"></div>
+          <div class="sf-flag">🇫🇷</div>
+          <div>
+            <h3>French Class</h3>
+            <p>My favorite subject is French because I enjoy learning a new language and experiencing a different culture. There's something special about communicating in another language — it opens a whole new world of connection and understanding.</p>
+            <div class="sf-pills">
+              <span class="sf-pill orange">Culture</span>
+              <span class="sf-pill teal">Language</span>
+              <span class="sf-pill orange">Communication</span>
+              <span class="sf-pill teal">New Perspectives</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <p>&copy; 2026 <span class="fname">Andy Kuo</span> — Built with passion and purpose.</p>
+    <p class="fmono">designed &amp; coded with care</p>
+  </footer>
+
+  <!-- ── Scripts ── -->
+  <script>
+    /* Scroll reveal */
+    const reveals = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => obs.observe(el));
+
+    /* Sidebar active highlight */
+    const sections = document.querySelectorAll('section, .section');
+    const navLinks = document.querySelectorAll('.sidebar a');
+    const secObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(a => a.style.color = '');
+          const active = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+          if (active) active.style.color = 'var(--accent)';
+        }
+      });
+    }, { threshold: 0.3 });
+    sections.forEach(s => { if (s.id) secObs.observe(s); });
+  </script>
+</body>
+</html>
